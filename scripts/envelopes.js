@@ -8,7 +8,7 @@ Gibberish.ExponentialDecay = function(){
 	var pow = Math.pow,
       value = 0,
       phase = 0;
-      
+
   Gibberish.extend(this, {
   	name:"ExponentialDecay",
   	properties: { decay:.5, length:11050 },
@@ -19,7 +19,7 @@ Gibberish.ExponentialDecay = function(){
 
   		return value;
   	},
-    
+
     trigger : function() {
       phase = typeof arguments[0] === 'number' ? arguments[0] : 0;
     },
@@ -29,7 +29,7 @@ Gibberish.ExponentialDecay = function(){
 Gibberish.ExponentialDecay.prototype = Gibberish._envelope;
 
 Gibberish.Line = function(start, end, time, loops) {
-	var that = { 
+	var that = {
 		name:		'line',
 
     properties : {
@@ -38,40 +38,40 @@ Gibberish.Line = function(start, end, time, loops) {
   		time:		time || Gibberish.context.sampleRate,
   		loops:	loops || false,
     },
-    
+
     retrigger: function( end, time ) {
       phase = 0;
       this.start = out
       this.end = end
       this.time = time
-      
+
       incr = (end - out) / time
     },
-    
+
     getPhase: function() { return phase },
     getIncr: function() { return incr },
     getOut: function() { return out }
 	};
-  
+
 	var phase = 0,
 	    incr = (end - start) / time,
       out
-  
+
   //console.log("INCREMENT", incr, end, start, time )
-  
+
 	this.callback = function(start, end, time, loops) {
     var incr = (end - start) / time
 		out = phase < time ? start + ( phase++ * incr) : end;
-				
+
 		phase = (out >= end && loops) ? 0 : phase;
-		
+
 		return out;
 	};
-  
+
   this.setPhase = function(v) { phase = v; }
-  
+
   Gibberish.extend(this, that);
-  
+
   this.init();
 
   return this;
@@ -80,47 +80,47 @@ Gibberish.Line.prototype = Gibberish._envelope;
 
 Gibberish.Ease = function( start, end, time, easein, loops ) {
   var sqrt = Math.sqrt, out = 0, phase = 0
-      
+
   start = start || 0
   end = end || 1
   time = time || Gibberish.context.sampleRate
   loops = loops || false
   easein = typeof easein === 'undefined' ? 1 : easein
-  
-	var that = { 
+
+	var that = {
 		name:		'ease',
     properties : {},
     retrigger: function( end, time ) {
       phase = 0;
       this.start = out
       this.end = end
-      this.time = time      
+      this.time = time
     },
-    
+
     getPhase: function() { return phase },
     getOut: function() { return out }
 	};
-  
+
 	this.callback = function() {
     var x = phase++ / time,
         y = easein ? 1 - sqrt( 1 - x * x ) : sqrt( 1 - ((1-x) * (1-x)) )
-    
+
     out = phase < time ? start + ( y * ( end - start ) ) : end
-    
+
 		//out = phase < time ? start + ( phase++ * incr) : end;
-				
+
 		phase = (out >= end && loops) ? 0 : phase;
-		
+
 		return out;
 	};
-  
+
   this.setPhase = function(v) { phase = v; }
   this.setEase = function(v) {
     easein = v
   }
-  
+
   Gibberish.extend(this, that);
-  
+
   this.init();
 
   return this;
@@ -130,10 +130,10 @@ Gibberish.Ease.prototype = Gibberish._envelope;
 // quadratic bezier
 // adapted from http://www.flong.com/texts/code/shapers_bez/
 Gibberish.Curve = function( start, end, time, a, b, fadeIn, loops ) {
-  var sqrt = Math.sqrt, 
+  var sqrt = Math.sqrt,
       out = 0,
       phase = 0
-      
+
   start = start || 0
   end = end || 1
   time = time || Gibberish.context.sampleRate
@@ -141,46 +141,46 @@ Gibberish.Curve = function( start, end, time, a, b, fadeIn, loops ) {
   b = b || .260
   loops = loops || false
   fadeIn = typeof fadeIn === 'undefined' ? 1 : fadeIn
-  
-	var that = { 
+
+	var that = {
 		name:		'curve',
 
     properties : {},
-    
+
     retrigger: function( end, time ) {
       phase = 0;
       this.start = out
       this.end = end
       this.time = time
-      
+
       incr = (end - out) / time
     },
-    
+
     getPhase: function() { return phase },
     getOut: function() { return out }
 	};
-  
+
 	this.callback = function() {
     var x = phase++ / time,
         om2a = 1 - 2 * a,
         t = ( sqrt( a*a + om2a*x ) - a ) / om2a,
         y = (1-2*b) * (t*t) + (2*b) * t
-    
+
     out = phase < time ? start + ( y * ( end - start ) ) : end
-    
+
     if( !fadeIn ) out =  1 - out
-    
+
 		//out = phase < time ? start + ( phase++ * incr) : end;
-				
+
 		phase = (out >= end && loops) ? 0 : phase;
-		
+
 		return out;
 	};
-  
+
   this.setPhase = function(v) { phase = v; }
-  
+
   Gibberish.extend(this, that);
-  
+
   this.init();
 
   return this;
@@ -196,24 +196,24 @@ Gibberish.Lines = function( values, times, loops ) {
       targetTime = 0,
       end = false,
       incr
-  
-  
+
+
   if( typeof values === 'undefined' ) values = [ 0,1 ]
-  if( typeof times  === 'undefined' ) times  = [ 44100 ]  
-    
+  if( typeof times  === 'undefined' ) times  = [ 44100 ]
+
   targetValue = values[ valuesPhase ]
   targetTime  = times[ 0 ]
-  
+
   incr = ( targetValue - values[0] ) / targetTime
   //console.log( "current", out, "target", targetValue, "incr", incr )
-  
+
   loops = loops || false
-  
-	var that = { 
+
+	var that = {
 		name:		'lines',
 
     properties : {},
-    
+
     retrigger: function() {
       phase = 0
       out = values[0]
@@ -224,20 +224,20 @@ Gibberish.Lines = function( values, times, loops ) {
       incr = ( targetValue - out ) / targetTime
       end = false
     },
-    
+
     getPhase: function() { return phase },
     getOut:   function() { return out }
 	};
-  
+
   that.run = that.retrigger
-  
+
 	this.callback = function() {
     if( phase >= targetTime && !end ) {
       if( valuesPhase < values.length - 1 ) {
         var timeStep = times[ ++timesPhase % times.length ]
         targetTime = phase + timeStep
         targetValue = values[ ++valuesPhase % values.length ]
-        incr = ( targetValue - out ) / timeStep        
+        incr = ( targetValue - out ) / timeStep
       }else{
         if( !loops ) {
           end = true
@@ -256,14 +256,14 @@ Gibberish.Lines = function( values, times, loops ) {
       out += incr
       phase++
     }
-		
+
 		return out;
 	};
-  
+
   this.setPhase = function(v) { phase = v; }
-  
+
   Gibberish.extend(this, that);
-  
+
   this.init();
 
   return this;
@@ -273,7 +273,7 @@ Gibberish.Lines.prototype = Gibberish._envelope;
 Gibberish.AD = function(_attack, _decay) {
   var phase = 0,
       state = 0;
-      
+
   Gibberish.extend( this,{
     name : "AD",
   	properties : {
@@ -284,11 +284,11 @@ Gibberish.AD = function(_attack, _decay) {
   	run : function() {
   		state = 0;
       phase = 0;
-  		return this;			
+  		return this;
     },
   	callback : function(attack,decay) {
   		attack = attack < 0 ? 22050 : attack;
-  		decay  = decay  < 0 ? 22050 : decay;				
+  		decay  = decay  < 0 ? 22050 : decay;
   		if(state === 0){
   			var incr = 1 / attack;
   			phase += incr;
@@ -301,7 +301,7 @@ Gibberish.AD = function(_attack, _decay) {
   			if(phase <= 0) {
   				phase = 0;
   				state++;;
-  			}			
+  			}
   		}
   		return phase;
     },
@@ -313,11 +313,11 @@ Gibberish.AD = function(_attack, _decay) {
 Gibberish.AD.prototype = Gibberish._envelope;
 
 Gibberish.ADSR = function(attack, decay, sustain, release, attackLevel, sustainLevel, requireReleaseTrigger) {
-	var that = { 
+	var that = {
     name:   "adsr",
 		type:		"envelope",
     'requireReleaseTrigger' : typeof requireReleaseTrigger !== 'undefined' ? requireReleaseTrigger : false,
-    
+
     properties: {
   		attack:		isNaN(attack) ? 10000 : attack,
   		decay:		isNaN(decay) ? 10000 : decay,
@@ -337,12 +337,12 @@ Gibberish.ADSR = function(attack, decay, sustain, release, attackLevel, sustainL
     }
 	};
 	Gibberish.extend(this, that);
-	
+
 	var phase = 0,
 	    state = 0,
       rt  = 0,
       obj = this;
-      
+
   this.callback = function(attack,decay,sustain,release,attackLevel,sustainLevel,releaseTrigger) {
 		var val = 0;
     rt = rt === 1 ? 1 : releaseTrigger;
@@ -389,19 +389,19 @@ Gibberish.ADSR = function(attack, decay, sustain, release, attackLevel, sustainL
   this.getPhase = function() { return phase; };
 	this.setPhase = function(newPhase) { phase = newPhase; };
 	this.setState = function(newState) { state = newState; phase = 0; };
-	this.getState = function() { return state; };		
-	
+	this.getState = function() { return state; };
+
   this.init();
-  
+
 	return this;
 };
 Gibberish.ADSR.prototype = Gibberish._envelope;
 
 Gibberish.ADR = function(attack, decay, release, attackLevel, releaseLevel) {
-	var that = { 
+	var that = {
     name:   "adr",
 		type:		"envelope",
-    
+
     properties: {
   		attack:		isNaN(attack) ? 11025 : attack,
   		decay:		isNaN(decay) ? 11025 : decay,
@@ -416,10 +416,10 @@ Gibberish.ADR = function(attack, decay, release, attackLevel, releaseLevel) {
 		},
 	};
 	Gibberish.extend(this, that);
-	
+
 	var phase = 0;
 	var state = 0;
-  
+
 	this.callback = function(attack,decay,release,attackLevel,releaseLevel) {
 		var val = 0;
 		if(state === 0){
@@ -436,7 +436,7 @@ Gibberish.ADR = function(attack, decay, release, attackLevel, releaseLevel) {
 			}
 		}else if(state === 2){
       phase--;
-      
+
 			val = (phase / release) * releaseLevel;
 			if(phase <= 0) {
         state++;
@@ -446,10 +446,10 @@ Gibberish.ADR = function(attack, decay, release, attackLevel, releaseLevel) {
 	};
 	this.setPhase = function(newPhase) { phase = newPhase; };
 	this.setState = function(newState) { state = newState; phase = 0; };
-	this.getState = function() { return state; };		
-	
+	this.getState = function() { return state; };
+
   this.init();
-  
+
 	return this;
 };
 Gibberish.ADR.prototype = Gibberish._envelope;

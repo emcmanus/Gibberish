@@ -8,7 +8,7 @@ var filenames = [
   "synth.js",
   "fm_synth.js",
   "monosynth.js",
-  "effects.js",  
+  "effects.js",
   "oscillators.js",
   "physical_models.js",
   "sampler.js",
@@ -25,7 +25,7 @@ for (var i = 0; i < filenames.length; i++) {
   var reg = /(?:\/\*\*)((.|\n|\s)+?)(?:\*\*\/)/g;
 	//var reg = /(?:\-\-\[\[)((.|\n|\s)+?)(?:\-\-\]\])/g;
 	var matches = null;
-  
+
 	while (matches = reg.exec(text)) {
     //console.log("MATCH", text);
 		if(matches[1] !== null && typeof matches[1] !== "undefined" && matches[1] != "") {
@@ -33,21 +33,21 @@ for (var i = 0; i < filenames.length; i++) {
 			var md = converter.makeHtml(matches[1]);
 			var reg2 = /\>(.*)\</;
 			var name = reg2.exec(md)[1];
-			
+
 			// split name and type
 			var _type_name = name.split("-");
-			
+
 			name = _type_name[0].replace(" ", "");
-			
+
 			var type = _type_name[1];
-			
+
 			// get rid of type in header... category is only used for table of contents
 			if(typeof type !== "undefined") {
 				md = md.replace("-"+ type, "");
 			}
-			
+
 			// there will only be dot if the match is a property or method, not a main object.
-			var parts = name.split("."); 
+			var parts = name.split(".");
 			if(parts.length === 2 && typeof type === 'undefined') {
 				//console.log("IS METHOD OR PROPERTY", parts[1]);
 				if(parts[1].indexOf("method") > -1) {
@@ -76,15 +76,15 @@ for (var i = 0; i < filenames.length; i++) {
 				}
       }else{
         var n = parts.length === 3 ? parts[0] + '.' + parts[1] : name;
-        
+
 				objs[n] = {
 					text:md,
 					methods:{},
 					properties:{},
 				};
-				
+
 				// just in case the type isn't defined...
-				if(typeof type !== "undefined") { 
+				if(typeof type !== "undefined") {
 					objs[n].type = type;
 				}else{
 					objs[n].type = "Miscellaneous";

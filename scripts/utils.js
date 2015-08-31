@@ -1,10 +1,10 @@
 
-Array2 = function() { 
+Array2 = function() {
   this.length = 0;
 };
 
 Array2.prototype = [];
-	
+
 Array2.prototype.remove = function(arg, searchDeep) { // searchDeep when true removes -all- matches, when false returns first one found.
 	searchDeep = typeof searchDeep === 'undefined' ? true : searchDeep;
 	if(typeof arg === "undefined") { // clear all
@@ -39,7 +39,7 @@ Array2.prototype.remove = function(arg, searchDeep) { // searchDeep when true re
 	}
 	if(this.parent) Gibberish.dirty(this.parent);
 };
-	
+
 Array2.prototype.get = function(arg) {
 	if(typeof arg === "number") {
 		return this[arg];
@@ -59,12 +59,12 @@ Array2.prototype.get = function(arg) {
 	}
 	return null;
 };
-	
+
 
 Array2.prototype.replace = function(oldObj, newObj) {
 	newObj.parent = this;
   newObj.input = oldObj.input;
-  
+
 	if(typeof oldObj != "number") {
 		var idx = this.indexOf(oldObj);
 		if(idx > -1) {
@@ -79,7 +79,7 @@ Array2.prototype.replace = function(oldObj, newObj) {
 Array2.prototype.insert = function(v, pos) {
 	v.parent = this;
   this.input = this.parent;
-  
+
 	if(Array.isArray(v)) {
 		for(var i = 0; i < v.length; i++) {
 			this.splice(pos + i, 0, v[i]);
@@ -102,13 +102,13 @@ Array2.prototype.add = function() {
 		this.push(arguments[i]);
 	}
 	//console.log("ADDING ::: this.parent = ", this.parent)
-	if(this.parent) {  
+	if(this.parent) {
     console.log("DIRTYING");
   	Gibberish.dirty(this.parent);
   }
-		
+
 };
-	
+
 var rnd = Math.random;
 Gibberish.rndf = function(min, max, number, canRepeat) {
   canRepeat = typeof canRepeat === "undefined" ? true : canRepeat;
@@ -126,7 +126,7 @@ Gibberish.rndf = function(min, max, number, canRepeat) {
 		var diff = max - min,
 		    r = Math.random(),
 		    rr = diff * r
-	
+
 		return min + rr;
 	}else{
 		var output = [];
@@ -134,7 +134,7 @@ Gibberish.rndf = function(min, max, number, canRepeat) {
 		if(typeof number === "undefined") {
 			number = max || min.length;
 		}
-		
+
 		for(var i = 0; i < number; i++) {
 			var num;
 			if(typeof arguments[0] === "object") {
@@ -155,10 +155,10 @@ Gibberish.rndf = function(min, max, number, canRepeat) {
 		return output;
 	}
 };
-  
+
 Gibberish.Rndf = function() {
   var _min, _max, quantity, random = Math.random, canRepeat;
-    
+
   if(arguments.length === 0) {
     _min = 0; _max = 1;
   }else if(arguments.length === 1) {
@@ -169,27 +169,27 @@ Gibberish.Rndf = function() {
     _min = arguments[0]; _max = arguments[1]; quantity = arguments[2];
   }else{
     _min = arguments[0]; _max = arguments[1]; quantity = arguments[2]; canRepeat = arguments[3];
-  }    
-  
+  }
+
   return function() {
     var value, min, max, range;
-    
+
     min = typeof _min === 'function' ? _min() : _min
     max = typeof _max === 'function' ? _max() : _max
-      
+
     if( typeof quantity === 'undefined') {
       value = Gibberish.rndf( min, max )
     }else{
       value = Gibberish.rndf( min, max, quantity, canRepeat )
     }
-    
+
     return value;
   }
 };
 
 Gibberish.rndi = function( min, max, number, canRepeat ) {
   var range;
-    
+
   if(arguments.length === 0) {
     min = 0; max = 1;
   }else if(arguments.length === 1) {
@@ -198,18 +198,18 @@ Gibberish.rndi = function( min, max, number, canRepeat ) {
     min = arguments[0]; max = arguments[1];
   }else{
     min = arguments[0]; max = arguments[1]; number = arguments[2]; canRepeat = arguments[3];
-  }    
-  
+  }
+
   range = max - min
   if( range < number ) canRepeat = true
-  
+
   if( typeof number === 'undefined' ) {
     range = max - min
     return Math.round( min + Math.random() * range );
   }else{
 		var output = [];
 		var tmp = [];
-		
+
 		for(var i = 0; i < number; i++) {
 			var num;
 			if(canRepeat) {
@@ -229,7 +229,7 @@ Gibberish.rndi = function( min, max, number, canRepeat ) {
 
 Gibberish.Rndi = function() {
   var _min, _max, quantity, random = Math.random, round = Math.round, canRepeat, range;
-    
+
   if(arguments.length === 0) {
     _min = 0; _max = 1;
   }else if(arguments.length === 1) {
@@ -240,23 +240,23 @@ Gibberish.Rndi = function() {
     _min = arguments[0]; _max = arguments[1]; quantity = arguments[2];
   }else{
     _min = arguments[0]; _max = arguments[1]; quantity = arguments[2]; canRepeat = arguments[3];
-  }  
-  
+  }
+
   range = _max - _min
   if( typeof quantity === 'number' && range < quantity ) canRepeat = true
-  
+
   return function() {
     var value, min, max, range;
-    
+
     min = typeof _min === 'function' ? _min() : _min
     max = typeof _max === 'function' ? _max() : _max
-    
+
     if( typeof quantity === 'undefined') {
       value = Gibberish.rndi( min, max )
     }else{
       value = Gibberish.rndi( min, max, quantity, canRepeat )
     }
-    
+
     return value;
   }
 };
@@ -278,7 +278,7 @@ Gibberish.extend = function(destination, source) {
     }
     return destination;
 };
-	
+
 Function.prototype.clone=function(){
     return eval('['+this.toString()+']')[0];
 };
@@ -300,7 +300,7 @@ String.prototype.format = function(i, safe, arg) {
     return format;
 }();
 
-Gibberish.future = function(func, time) { 
+Gibberish.future = function(func, time) {
   var seq = new Gibberish.Sequencer({
     values:[
       function(){},
@@ -312,11 +312,11 @@ Gibberish.future = function(func, time) {
     ],
     durations:[ time ]
   }).start()
-  
+
   seq.cancel = function() {
     seq.stop();
     seq.disconnect();
   }
-  
+
   return seq
 }

@@ -2,23 +2,23 @@
 A three oscillator monosynth for bass and lead lines. You can set the octave and tuning offsets for oscillators 2 & 3. There is a 24db filter and an envelope controlling
 both the amplitude and filter cutoff.
 ## Example Usage##
-`  
-t = new Gibberish.Mono({  
-	cutoff:0,  
-	filterMult:.5,  
-	attack:_8,  
-	decay:_8,  
-	octave2:-1,  
-	octave3:-1,  
-	detune2:.01,  
-	glide:_12,  
-}).connect();  
+`
+t = new Gibberish.Mono({
+	cutoff:0,
+	filterMult:.5,
+	attack:_8,
+	decay:_8,
+	octave2:-1,
+	octave3:-1,
+	detune2:.01,
+	glide:_12,
+}).connect();
 t.note("C3");  `
 ## Constructors
   param **arguments** : Object. A dictionary of property values to set upon initialization. See the properties section and the example usage section for details.
 **/
 /**###Gibberish.MonoSynth.waveform : property
-String. The primary oscillator to be used. Can currently be 'Sine', 'Square', 'Noise', 'Triangle' or 'Saw'. 
+String. The primary oscillator to be used. Can currently be 'Sine', 'Square', 'Noise', 'Triangle' or 'Saw'.
 **/
 /**###Gibberish.MonoSynth.attack : property
 Integer. The length, in samples, of the attack of the amplitude envelope.
@@ -53,10 +53,10 @@ Float. The amount, from -1..1, the oscillator 3 is detuned. A value of -.5 means
 /**###Gibberish.MonoSynth.glide : property
 Integer. The length in time, in samples, to slide in pitch from one note to the next.
 **/
-Gibberish.MonoSynth = function() {  
-	Gibberish.extend(this, { 
+Gibberish.MonoSynth = function() {
+	Gibberish.extend(this, {
     name:       'monosynth',
-    
+
     properties: {
   		attack:			10000,
   		decay:			10000,
@@ -78,32 +78,32 @@ Gibberish.MonoSynth = function() {
   		frequency:	0,
       channels:   2,
     },
-    
+
 		waveform:		"Saw3",
 /**###Gibberish.MonoSynth.note : method
 param **note or frequency** : String or Integer. You can pass a note name, such as "A#4", or a frequency value, such as 440.
 param **amp** : Optional. Float. The volume of the note, usually between 0..1. The main amp property of the Synth will also affect note amplitude.
-**/				
+**/
 		note : function(_frequency, amp) {
       if( typeof _frequency === 'undefined' ) return
 
       if(typeof amp !== 'undefined' && amp !== 0) this.amp = amp;
-      
+
       if( amp !== 0 ) {
     		if(typeof this.frequency !== 'object'){
-      
+
           this.frequency = _frequency;
         }else{
           this.frequency[0] = _frequency;
           Gibberish.dirty(this);
         }
-        
+
   			if(envstate() > 0 ) _envelope.run();
       }
 		},
   	_note : function(frequency, amp) {
       if( typeof frequency === 'undefined' ) return
-        
+
   		if(typeof this.frequency !== 'object'){
         if( useADSR && frequency === lastFrequency && amp === 0) {
           this.releaseTrigger = 1;
@@ -121,27 +121,27 @@ param **amp** : Optional. Float. The volume of the note, usually between 0..1. T
         this.releaseTrigger = 0;
         Gibberish.dirty(this);
       }
-					
+
   		if(typeof amp !== 'undefined' && amp !== 0) this.amp = amp;
-	  
+
       if( amp !== 0 ) { _envelope.run(); }
   	},
 	});
-  
+
 	var waveform = waveform1 = waveform2 = waveform3 = this.waveform;
 	Object.defineProperty(this, "waveform", {
 		get: function() { return waveform; },
 		set: function(value) {
 			if(waveform !== value) {
 				waveform = value;
-						
+
 				osc1 = new Gibberish[ value ]().callback;
 				osc2 = new Gibberish[ value ]().callback;
 				osc3 = new Gibberish[ value ]().callback;
 			}
 		},
 	});
-  
+
   Object.defineProperties( this, {
     waveform1: {
       get: function() { return waveform1 },
@@ -156,8 +156,8 @@ param **amp** : Optional. Float. The volume of the note, usually between 0..1. T
       set: function(v) { waveform3 = v; osc3 = new Gibberish[ v ]().callback; }
     },
   })
-  
-  
+
+
 	var _envelope = new Gibberish.AD(this.attack, this.decay),
       envstate  = _envelope.getState,
       envelope  = _envelope.callback,
@@ -165,17 +165,17 @@ param **amp** : Optional. Float. The volume of the note, usually between 0..1. T
     	osc1      = new Gibberish[this.waveform](this.frequency,  this.amp1).callback,
     	osc2      = new Gibberish[this.waveform](this.frequency2, this.amp2).callback,
     	osc3      = new Gibberish[this.waveform](this.frequency3, this.amp3).callback,
-      lag       = new Gibberish.OnePole().callback,      
+      lag       = new Gibberish.OnePole().callback,
     	panner    = Gibberish.makePanner(),
     	out       = [0,0];
-  
+
   this.envelope = _envelope
-  
+
   this.callback = function(attack, decay, cutoff, resonance, amp1, amp2, amp3, filterMult, isLowPass, pulsewidth, masterAmp, detune2, detune3, octave2, octave3, glide, pan, frequency, channels) {
 		if(envstate() < 2) {
       if(glide >= 1) glide = .9999;
       frequency = lag(frequency, 1-glide, glide);
-      
+
 			var frequency2 = frequency;
 			if(octave2 > 0) {
 				for(var i = 0; i < octave2; i++) {
@@ -186,7 +186,7 @@ param **amp** : Optional. Float. The volume of the note, usually between 0..1. T
 					frequency2 /= 2;
 				}
 			}
-					
+
 			var frequency3 = frequency;
 			if(octave3 > 0) {
 				for(var i = 0; i < octave3; i++) {
@@ -197,10 +197,10 @@ param **amp** : Optional. Float. The volume of the note, usually between 0..1. T
 					frequency3 /= 2;
 				}
 			}
-				
+
 			frequency2 += detune2 > 0 ? ((frequency * 2) - frequency) * detune2 : (frequency - (frequency / 2)) * detune2;
 			frequency3 += detune3 > 0 ? ((frequency * 2) - frequency) * detune3 : (frequency - (frequency / 2)) * detune3;
-							
+
 			var oscValue = osc1(frequency, amp1, pulsewidth) + osc2(frequency2, amp2, pulsewidth) + osc3(frequency3, amp3, pulsewidth);
 			var envResult = envelope(attack, decay);
 			var val = filter( oscValue, cutoff + filterMult * envResult, resonance, isLowPass, 1) * envResult;
@@ -211,10 +211,10 @@ param **amp** : Optional. Float. The volume of the note, usually between 0..1. T
 			out[0] = out[1] = 0;
 			return out;
 		}
-	}; 
-  
+	};
+
   this.init();
-  this.oscillatorInit();     
+  this.oscillatorInit();
 	this.processProperties(arguments);
 };
-Gibberish.MonoSynth.prototype = Gibberish._synth; 
+Gibberish.MonoSynth.prototype = Gibberish._synth;
